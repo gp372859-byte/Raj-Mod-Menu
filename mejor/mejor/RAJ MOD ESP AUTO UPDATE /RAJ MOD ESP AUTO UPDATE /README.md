@@ -5,7 +5,27 @@ Floating mod menu for il2cpp and other native android games. KittyMemory, MSHook
 
 Support Android 4.4.x up to Android S Preview. ARMv7, x86 and ARM64 architecture supported.
 
+**Modified & Customized by Raj Vishwakarma**
+
 ![](https://i.imgur.com/zeumkBG.gif)
+
+# Features
+- 🎯 Floating Mod Menu overlay
+- 🔧 KittyMemory patching
+- 🪝 MSHook & And64InlineHook hooking
+- 🔐 AY string obfuscator
+- 📦 Base64 assets (no assets folder needed)
+- 📱 Multi-architecture support (ARMv7 / x86 / ARM64)
+- 🎨 Menu controls: Spinner, Toggle, SeekBar, Button, Category, InputValue, CheckBox
+- 💰 Money Hack (Gold, Silver, XP, Karma, Gas)
+- 🏃 Speed Hack
+- 💀 Auto Kill
+- 🖼️ ESP (Line, Box, Name, Distance, Object Counter)
+- 🔔 Missing Offset Notifications
+- 🛡️ Safe Patching (null-checks to prevent crashes)
+
+# How It Works
+`lib_main()` constructor starts a hack thread on library load → `hack_thread()` waits for `libil2cpp.so` to load (`sleep(5)`) → then finds classes via `LoadClass`, gets method offsets via `GetMethodOffsetByName`, hooks functions using `HOOK_LIB`/`HOOK_AU`, applies patches via `PATCH_LIB` → `GetFeatureList()` returns all menu toggles → `Changes()` handles user input to enable/disable patches → `DrawOn()` draws ESP overlay (boxes, lines, names, distance) every frame.
 
 # Known bug
 - Spinner does not show on some devices running Android 11. Should work again on Android 12
@@ -41,7 +61,11 @@ Thanks to the following individuals whose code helped me develop this mod menu
 * MrIkso - First mod menu template https://github.com/MrIkso/FloatingModMenu
 * MJx0 A.K.A Ruit - https://github.com/MJx0/KittyMemory
 * Rprop - https://github.com/Rprop/And64InlineHook
+* LGLTeam - Original Android-Mod-Menu project - https://github.com/LGLTeam/Android-Mod-Menu
 * And everyone else who provided input and contributions to this project!
+
+# Modified By
+**Raj Vishwakarma** — Added Money Hack (Gold, Silver, XP, Karma, Gas), Speed Hack, Auto Kill, Missing Offset Notifications, Safe Patching with null-checks to prevent crashes, ESP improvements (Line, Box, Name, Distance, Object Counter) and 32-bit ARM (armeabi-v7a) support.
 
 # License
 **GNU General Public License 3**
