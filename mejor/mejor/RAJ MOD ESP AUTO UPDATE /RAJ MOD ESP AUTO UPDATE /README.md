@@ -7,7 +7,7 @@ Support Android 4.4.x up to Android S Preview. ARMv7, x86 and ARM64 architecture
 
 **Modified & Customized by Raj Vishwakarma**
 
-![](https://i.imgur.com/zeumkBG.gif)
+![](https://github.com/gp372859-byte/Video-/blob/main/screen-20260928-215357.mp4)
 
 # Features
 - 🎯 Floating Mod Menu overlay
