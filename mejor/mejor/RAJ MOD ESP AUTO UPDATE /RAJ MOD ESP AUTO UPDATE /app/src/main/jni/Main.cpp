@@ -31,13 +31,15 @@
 
 ESP espOverlay;
 
-// ✅ IsDead
-bool (*get_IsDead)(void *player) = nullptr;
+// ============================================================
+// ✅ FIXED: get_alive hook
+// ============================================================
+bool (*get_IsAlive)(void *player) = nullptr;
 
 bool SafeIsDead(void* player) {
     if (player == nullptr) return false;
-    if (get_IsDead == nullptr) return false;
-    return get_IsDead(player);
+    if (get_IsAlive == nullptr) return false;
+    return !get_IsAlive(player);   // alive का ULTA = dead
 }
 
 bool(*this_ScreenResolution)(...);
@@ -66,8 +68,8 @@ struct variables {
     Color ESPLineColor = Color::White();
     Color ESPBoxColor = Color::White();
     int ESPLinePos = LineOrigin::Top;
-} var;
 
+} var;
 
 // ================================[ ESP CONFIG ]================================ //
 void DrawESP(ESP esp, int screenWidth, int screenHeight) {
@@ -97,6 +99,7 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
         void *Player = players[i];
         if (Player == nullptr || get_camera == nullptr) continue;
 
+        // ✅ zinda = dikhega, mara = hatega
         if (SafeIsDead(Player)) {
             players.erase(players.begin() + i);
             --i;
@@ -180,10 +183,9 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
     }
 }
 
-
 //======================| Enemy Update |========================== //
 void (*old_NpcControlUpdate)(...);
-void new_NpcControlUpdate(void* player) {
+void new_NpcControlUpdate(void* player) {   // ✅ void* किया
     if (player != nullptr) {
         if (var.Esp) {
             bool isDead = SafeIsDead(player);
@@ -191,7 +193,7 @@ void new_NpcControlUpdate(void* player) {
                 if (!playerFind(player)) players.push_back(player);
                 if (players.size() > 99) players.clear();
             } else {
-                auto it = std::find(players.begin(), players.end(), player);
+                auto it = std::find(players.begin(), players.end(), (void*)player); // ✅ cast किया
                 if (it != players.end()) players.erase(it);
             }
         }
@@ -205,7 +207,7 @@ void new_NpcControlUpdate(void* player) {
 void (*old_NpcControlOnDestroy)(...);
 void new_NpcControlOnDestroy(void *player) {
     if (player != nullptr) {
-        auto it = std::find(players.begin(), players.end(), player);
+        auto it = std::find(players.begin(), players.end(), (void*)player);
         if (it != players.end()) players.erase(it);
     }
     if (old_NpcControlOnDestroy != nullptr) {
@@ -251,12 +253,13 @@ void *hack_thread(void *) {
             NotifyMissing("Enemy.OnDestroy");
         }
 
-        DWORD IsDeadOff = PlayerEntity->GetMethodOffsetByName(OBFUSCATE("get_alive"), 0);
-        if (IsDeadOff != 0) {
-            get_IsDead = (bool (*)(void *))IsDeadOff;
-            LOGD("✅ get_IsDead = 0x%X", IsDeadOff);
+        // ✅ FIXED: get_alive hook
+        DWORD IsAliveOff = PlayerEntity->GetMethodOffsetByName(OBFUSCATE("get_alive"), 0);
+        if (IsAliveOff != 0) {
+            get_IsAlive = (bool (*)(void *))IsAliveOff;
+            LOGD("✅ get_alive hook = 0x%X", IsAliveOff);
         } else {
-            NotifyMissing("Enemy.get_IsDead");
+            NotifyMissing("Enemy.get_alive");
         }
     }
 
@@ -291,7 +294,6 @@ Java_com_android_support_Menu_DrawOn(JNIEnv *env, jclass type, jobject espView, 
         DrawESP(espOverlay, espOverlay.getWidth(), espOverlay.getHeight());
     }
 }
-
 
 jobjectArray GetFeatureList(JNIEnv *env, jobject context) {
     jobjectArray ret;
@@ -339,8 +341,8 @@ jobjectArray GetFeatureList(JNIEnv *env, jobject context) {
 }
 
 void Changes(JNIEnv *env, jclass clazz, jobject obj,
-                                        jint featNum, jstring featName, jint value,
-                                        jboolean boolean, jstring str) {
+             jint featNum, jstring featName, jint value,
+             jboolean boolean, jstring str) {
 
     switch (featNum) {
         case 100: var.Esp = boolean; break;
@@ -392,12 +394,11 @@ void Changes(JNIEnv *env, jclass clazz, jobject obj,
     }
 }
 
-__attribute__((constructor))
+__attribute__((constructor))   // ✅ double underscore
 void lib_main() {
     pthread_t ptid;
     pthread_create(&ptid, NULL, hack_thread, NULL);
 }
-
 
 int RegisterMenu(JNIEnv *env) {
     JNINativeMethod methods[] = {
