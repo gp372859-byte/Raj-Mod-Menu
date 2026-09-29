@@ -54,6 +54,6 @@ LOCAL_SRC_FILES := \
     KittyMemory/KittyMemory.cpp \
     KittyMemory/MemoryPatch.cpp \
     KittyMemory/MemoryBackup.cpp \
-    KittyMemory/KittyUtils.cpp
-
+    KittyMemory/KittyUtils.cpp \
+    And64InlineHook/And64InlineHook.cpp \
 include $(BUILD_SHARED_LIBRARY)
